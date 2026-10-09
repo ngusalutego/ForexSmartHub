@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Forex Smart Hub{% endblock %}</title>
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #172033;
+            line-height: 1.6;
+            padding-bottom: 80px;
+        }
+
+        /* =========================================
+           TOP NAVIGATION
+        ========================================= */
+
+        .top-nav {
+            height: 72px;
+            background: #101828;
+            padding: 0 5%;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            position: sticky;
+            top: 0;
+            z-index: 3000;
+            box-shadow: 0 4px 20px rgba(0,0,0,.18);
+        }
+
+        /* =========================================
+           LOGO - LEFT
+        ========================================= */
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: white;
+            font-size: 21px;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+            letter-spacing: -.3px;
+        }
+
+        .logo-icon {
+            font-size: 25px;
+        }
+
+        .logo-main {
+            color: white;
+        }
+
+        .logo-highlight {
+            color: #22c55e;
+        }
+
+        /* =========================================
+           SEARCH - CENTER
+        ========================================= */
+
+        .top-search {
+            flex: 1;
+            max-width: 620px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .top-search form {
+            padding: 0;
+            margin: 0;
+            background: transparent;
+            box-shadow: none;
+            display: block;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+        }
+
+        .top-search input {
+            width: 100%;
+            height: 44px;
+            border: 1px solid #344054;
+            border-radius: 12px;
+            background: #1d2939;
+            color: white;
+            padding: 0 52px 0 17px;
+            font-size: 14px;
+            outline: none;
+            transition: .2s;
+        }
+
+        .top-search input::placeholder {
+            color: #98a2b3;
+        }
+
+        .top-search input:focus {
+            border-color: #22c55e;
+            background: #182230;
+            box-shadow: 0 0 0 3px rgba(34,197,94,.12);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 9px;
+            background: #22c55e;
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: .2s;
+        }
+
+        .search-btn:hover {
+            background: #16a34a;
+            transform: scale(1.04);
+        }
+
+        /* =========================================
+           PROFILE - RIGHT
+        ========================================= */
+
+        .profile-menu {
+            position: relative;
+            margin-left: auto;
+        }
+
+        .profile-trigger {
+            height: 46px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 5px 9px 5px 6px;
+            border: 1px solid #344054;
+            border-radius: 12px;
+            background: #182230;
+            color: white;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+        .profile-trigger:hover {
+            border-color: #22c55e;
+            background: #1d2939;
+        }
+
+        .profile-avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #22c55e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .profile-avatar-letter {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #22c55e;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+        }
+
+        .profile-name {
+            max-width: 110px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .profile-arrow {
+            color: #98a2b3;
+            font-size: 12px;
+        }
+
+        /* =========================================
+           DROPDOWN MENU
+        ========================================= */
+
+        .profile-dropdown {
+            position: absolute;
+            top: 58px;
+            right: 0;
+            width: 230px;
+            background: white;
+            border-radius: 14px;
+            padding: 8px;
+            box-shadow: 0 15px 40px rgba(0,0,0,.20);
+            border: 1px solid #eaecf0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-8px);
+            transition: .2s ease;
+        }
+
+        .profile-menu:hover .profile-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 12px;
+            border-bottom: 1px solid #eaecf0;
+            margin-bottom: 5px;
+        }
+
+        .dropdown-header strong {
+            display: block;
+            color: #101828;
+            font-size: 14px;
+        }
+
+        .dropdown-header small {
+            display: block;
+            color: #667085;
+            margin-top: 2px;
+            font-size: 12px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dropdown-link {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            width: 100%;
+            padding: 11px 12px;
+            border-radius: 9px;
+            color: #344054;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: .15s;
+        }
+
+        .dropdown-link:hover {
+            background: #f2f4f7;
+            color: #16a34a;
+        }
+
+        .dropdown-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 17px;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #eaecf0;
+            margin: 6px 0;
+        }
+
+        .dropdown-guardian {
+            color: #b45309;
+        }
+
+        .dropdown-logout {
+            color: #dc2626;
+        }
+
+        .dropdown-logout:hover {
+            color: #b91c1c;
+            background: #fef2f2;
+        }
+
+        /* =========================================
+           LOGGED OUT ACTION
+        ========================================= */
+
+        .auth-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .auth-link {
+            text-decoration: none;
+            padding: 9px 15px;
+            border-radius: 9px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #d0d5dd;
+        }
+
+        .auth-link:hover {
+            background: #1d2939;
+            color: white;
+        }
+
+        .auth-signup {
+            background: #22c55e;
+            color: white;
+        }
+
+        .auth-signup:hover {
+            background: #16a34a;
+            color: white;
+        }
+
+        /* =========================================
+           MAIN CONTAINER
+        ========================================= */
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 30px auto;
+            min-height: 60vh;
+        }
+
+        /* =========================================
+           HERO
+        ========================================= */
+
+        .hero {
+            background: #101828;
+            color: white;
+            padding: 50px 30px;
+            border-radius: 18px;
+            margin-bottom: 30px;
+        }
+
+        .hero h1 {
+            font-size: 38px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            color: #d0d5dd;
+            margin-bottom: 25px;
+        }
+
+        /* =========================================
+           BUTTONS
+        ========================================= */
+
+        .btn {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            background: #22c55e;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            opacity: .9;
+        }
+
+        .btn-dark {
+            background: #101828;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+        }
+
+        /* =========================================
+           STATS
+        ========================================= */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat {
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.06);
+        }
+
+        .stat h2 {
+            color: #22c55e;
+            margin-bottom: 5px;
+        }
+
+        /* =========================================
+           GRID
+        ========================================= */
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 20px;
+        }
+
+        /* =========================================
+           CARD
+        ========================================= */
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,.07);
+        }
+
+        .card-body {
+            padding: 18px;
+        }
+
+        .card h3 {
+            margin-bottom: 8px;
+        }
+
+        /* =========================================
+           CATEGORY
+        ========================================= */
+
+        .category {
+            display: inline-block;
+            background: #e9f9ef;
+            color: #15803d;
+            padding: 5px 9px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        /* =========================================
+           VIDEO
+        ========================================= */
+
+        .video-box {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: #000;
+        }
+
+        .video-box video,
+        .video-box iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* =========================================
+           FORMS
+        ========================================= */
+
+        form {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.06);
+        }
+
+        label {
+            display: block;
+            margin: 15px 0 7px;
+            font-weight: bold;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d0d5dd;
+            border-radius: 8px;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #22c55e;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* =========================================
+           SEARCH
+        ========================================= */
+
+        .search {
+            display: grid;
+            grid-template-columns: 1fr 220px auto;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        /* =========================================
+           ALERTS
+        ========================================= */
+
+        .alert {
+            padding: 13px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .success {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* =========================================
+           ADMIN
+        ========================================= */
+
+        .admin-box {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,.06);
+            margin-bottom: 25px;
+        }
+
+        .admin-box h2 {
+            margin-bottom: 15px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .admin-table th,
+        .admin-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eaecf0;
+            text-align: left;
+        }
+
+        .admin-table th {
+            background: #101828;
+            color: white;
+        }
+
+        .admin-table tr:hover {
+            background: #f9fafb;
+        }
+
+        /* =========================================
+           BOTTOM NAV
+        ========================================= */
+
+        .bottom-nav {
+            display: none;
+        }
+
+        .bottom-nav a {
+            text-decoration: none;
+            color: #667085;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 600;
+            flex: 1;
+            padding: 8px 2px 6px;
+        }
+
+        .bottom-nav a.active,
+        .bottom-nav a:hover {
+            color: #22c55e;
+        }
+
+        .bottom-icon {
+            display: block;
+            font-size: 20px;
+            line-height: 22px;
+            margin-bottom: 3px;
+        }
+
+        /* =========================================
+           FOOTER
+        ========================================= */
+
+        footer {
+            margin-top: 50px;
+            padding: 25px;
+            text-align: center;
+            background: #101828;
+            color: #98a2b3;
+        }
+
+        /* =========================================
+           MOBILE
+        ========================================= */
+
+        @media(max-width: 800px) {
+
+            body {
+                padding-bottom: 78px;
+            }
+
+            .top-nav {
+                height: auto;
+                min-height: 68px;
+                padding: 10px 14px;
+                display: grid;
+                grid-template-columns: 1fr auto;
+                gap: 10px 12px;
+            }
+
+            .logo {
+                font-size: 18px;
+            }
+
+            .logo-icon {
+                font-size: 21px;
+            }
+
+            .top-search {
+                grid-column: 1 / -1;
+                grid-row: 2;
+                max-width: none;
+                width: 100%;
+            }
+
+            .top-search input {
+                height: 42px;
+            }
+
+            .profile-trigger {
+                height: 42px;
+                padding-right: 7px;
+            }
+
+            .profile-name,
+            .profile-arrow {
+                display: none;
+            }
+
+            .profile-dropdown {
+                top: 51px;
+                right: 0;
+                width: 220px;
+            }
+
+            .auth-actions {
+                margin-left: auto;
+            }
+
+            .auth-link {
+                padding: 8px 10px;
+                font-size: 12px;
+            }
+
+            .container {
+                width: 94%;
+                margin: 20px auto;
+            }
+
+            .hero {
+                padding: 35px 20px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .search {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-table {
+                display: block;
+                overflow-x: auto;
+            }
+
+            .bottom-nav {
+                position: fixed;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                height: 68px;
+                background: white;
+                border-top: 1px solid #e4e7ec;
+                box-shadow: 0 -4px 20px rgba(0,0,0,.12);
+                z-index: 4000;
+            }
+
+            footer {
+                margin-bottom: 10px;
+            }
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<!-- =========================================
+     TOP NAVIGATION
+========================================= -->
+
+<nav class="top-nav">
+
+    <!-- APP NAME - LEFT -->
+
+    <a class="logo" href="{{ url_for('home') }}">
+
+        <span class="logo-icon">📈</span>
+
+        <span class="logo-main">
+            Forex
+        </span>
+
+        <span class="logo-highlight">
+            Smart Hub
+        </span>
+
+    </a>
+
+
+    <!-- SEARCH - CENTER -->
+
+    <div class="top-search">
+
+        <form method="GET" action="{{ url_for('videos') }}">
+
+            <div class="search-wrapper">
+
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search Forex videos, Gold, XAUUSD, RSI..."
+                >
+
+                <button
+                    type="submit"
+                    class="search-btn"
+                    title="Search"
+                >
+                    🔍
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+
+    <!-- RIGHT SIDE -->
+
+    {% if current_user %}
+
+        <div class="profile-menu">
+
+            <button
+                type="button"
+                class="profile-trigger"
+                title="Account Menu"
+            >
+
+                {% if current_user["profile_image"] %}
+
+                    <img
+                        class="profile-avatar"
+                        src="{{ url_for('static', filename='uploads/' + current_user['profile_image']) }}"
+                        alt="Profile"
+                    >
+
+                {% else %}
+
+                    <div class="profile-avatar-letter">
+                        {{ current_user["name"][0]|upper }}
+                    </div>
+
+                {% endif %}
+
+                <span class="profile-name">
+                    {{ current_user["name"] }}
+                </span>
+
+                <span class="profile-arrow">
+                    ▾
+                </span>
+
+            </button>
+
+
+            <!-- PROFILE DROPDOWN -->
+
+            <div class="profile-dropdown">
+
+                <div class="dropdown-header">
+
+                    <strong>
+                        {{ current_user["name"] }}
+                    </strong>
+
+                    <small>
+                        {{ current_user["email"] }}
+                    </small>
+
+                </div>
+
+
+                <a
+                    class="dropdown-link"
+                    href="{{ url_for('profile', user_id=current_user['id']) }}"
+                >
+                    <span class="dropdown-icon">👤</span>
+                    My Profile
+                </a>
+
+
+                <a
+                    class="dropdown-link"
+                    href="{{ url_for('users') }}"
+                >
+                    <span class="dropdown-icon">🔎</span>
+                    Find Users
+                </a>
+
+
+                <a
+                    class="dropdown-link"
+                    href="{{ url_for('settings') }}"
+                >
+                    <span class="dropdown-icon">⚙️</span>
+                    Settings
+                </a>
+
+
+                {% if current_user["is_admin"] %}
+
+                    <a
+                        class="dropdown-link dropdown-guardian"
+                        href="{{ url_for('admin_panel') }}"
+                    >
+                        <span class="dropdown-icon">🛡️</span>
+                        Guardian
+                    </a>
+
+                {% endif %}
+
+
+                <div class="dropdown-divider"></div>
+
+
+                <a
+                    class="dropdown-link dropdown-logout"
+                    href="{{ url_for('logout') }}"
+                >
+                    <span class="dropdown-icon">↪</span>
+                    Logout
+                </a>
+
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <!-- LOGGED OUT -->
+
+        <div class="auth-actions">
+
+            <a
+                class="auth-link"
+                href="{{ url_for('login') }}"
+            >
+                Login
+            </a>
+
+            <a
+                class="auth-link auth-signup"
+                href="{{ url_for('signup') }}"
+            >
+                Sign Up
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</nav>
+
+
+<!-- =========================================
+     MAIN CONTENT
+========================================= -->
+
+<div class="container">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+
+        {% for category, message in messages %}
+
+            <div class="alert {{ category }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    {% block content %}
+
+    {% endblock %}
+
+</div>
+
+
+<!-- =========================================
+     MOBILE BOTTOM NAVIGATION
+========================================= -->
+
+<nav class="bottom-nav">
+
+    <a href="{{ url_for('home') }}">
+
+        <span class="bottom-icon">
+            ⌂
+        </span>
+
+        Home
+
+    </a>
+
+
+    <a href="{{ url_for('videos') }}">
+
+        <span class="bottom-icon">
+            ▶
+        </span>
+
+        Videos
+
+    </a>
+
+
+    {% if current_user %}
+
+        <a href="{{ url_for('upload') }}">
+
+            <span class="bottom-icon">
+                ＋
+            </span>
+
+            Upload
+
+        </a>
+
+
+        <a href="{{ url_for('add_youtube') }}">
+
+            <span class="bottom-icon">
+                ▷
+            </span>
+
+            YouTube
+
+        </a>
+
+
+        <a href="{{ url_for('profile', user_id=current_user['id']) }}">
+
+            <span class="bottom-icon">
+                ●
+            </span>
+
+            Profile
+
+        </a>
+
+    {% else %}
+
+        <a href="{{ url_for('login') }}">
+
+            <span class="bottom-icon">
+                ↪
+            </span>
+
+            Login
+
+        </a>
+
+
+        <a href="{{ url_for('signup') }}">
+
+            <span class="bottom-icon">
+                ＋
+            </span>
+
+            Sign Up
+
+        </a>
+
+    {% endif %}
+
+</nav>
+
+
+<!-- =========================================
+     FOOTER
+========================================= -->
+
+<footer>
+
+    Forex Smart Hub
+    <br>
+
+    Learn • Trade • Grow
+
+</footer>
+
+
+<!-- =========================================
+     ALERT SCRIPT
+========================================= -->
+
+<script>
+
+    setTimeout(function() {
+
+        const alerts =
+            document.querySelectorAll(".alert");
+
+        alerts.forEach(function(alert) {
+
+            alert.style.opacity = "0";
+
+            alert.style.transition =
+                "opacity .5s";
+
+            setTimeout(function() {
+
+                alert.remove();
+
+            }, 500);
+
+        });
+
+    }, 4000);
+
+</script>
+
+
+</body>
+</html>

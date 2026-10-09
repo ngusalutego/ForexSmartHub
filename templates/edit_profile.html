@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.edit-box {
+    max-width: 600px;
+    margin: 30px auto;
+}
+
+.edit-card {
+    background: #111827;
+    padding: 25px;
+    border-radius: 16px;
+}
+
+.edit-card input,
+.edit-card textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin: 8px 0 18px;
+    border-radius: 8px;
+    border: 1px solid #374151;
+}
+
+.edit-card textarea {
+    min-height: 120px;
+}
+
+.save-button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+}
+</style>
+
+<div class="edit-box">
+
+    <div class="edit-card">
+
+        <h1>✏️ Edit Profile</h1>
+
+        <form
+            method="POST"
+            enctype="multipart/form-data"
+        >
+
+            <label>Name</label>
+
+            <input
+                type="text"
+                name="name"
+                value="{{ user['name'] }}"
+                required
+            >
+
+            <label>Bio</label>
+
+            <textarea
+                name="bio"
+                placeholder="Tell people about yourself..."
+            >{{ user["bio"] or "" }}</textarea>
+
+            <label>Profile Picture</label>
+
+            <input
+                type="file"
+                name="profile_image"
+                accept="image/*"
+            >
+
+            <button
+                class="save-button"
+                type="submit"
+            >
+                Save Profile
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Forex Smart Hub - Home{% endblock %}
+
+{% block content %}
+
+<section class="hero">
+
+    <h1>📈 Forex Smart Hub</h1>
+
+    <p>
+        Learn • Trade • Grow
+    </p>
+
+    <p>
+        Your platform for Forex education, videos and trading tools.
+    </p>
+
+    <a href="{{ url_for('videos') }}" class="btn">
+        Explore Videos
+    </a>
+
+</section>
+
+<section class="stats">
+
+    <div class="stat">
+        <h2>{{ total }}</h2>
+        <p>Total Videos</p>
+    </div>
+
+    <div class="stat">
+        <h2>📚</h2>
+        <p>Forex Education</p>
+    </div>
+
+    <div class="stat">
+        <h2>🎯</h2>
+        <p>Trading Skills</p>
+    </div>
+
+</section>
+
+<h2 style="margin-bottom:20px;">
+    Latest Videos
+</h2>
+
+<div class="grid">
+
+    {% for video in videos %}
+
+    <div class="card">
+
+        <div class="video-box">
+
+            {% if video["video_type"] == "youtube" %}
+
+                <iframe
+                    src="{{ video['video_url'] }}"
+                    allowfullscreen>
+                </iframe>
+
+            {% else %}
+
+                <video controls>
+                    <source
+                        src="{{ url_for('static', filename='uploads/' + video['filename']) }}">
+                </video>
+
+            {% endif %}
+
+        </div>
+
+        <div class="card-body">
+
+            <span class="category">
+                {{ video["category"] }}
+            </span>
+
+            <h3>
+                {{ video["title"] }}
+            </h3>
+
+            <p>
+                {{ video["description"] or "Forex educational video." }}
+            </p>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <p>
+        No videos available yet.
+    </p>
+
+    {% endfor %}
+
+</div>
+
+{% endblock %}

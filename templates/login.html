@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div style="max-width:500px;margin:auto;">
+
+    <h1 style="margin-bottom:10px;">
+        🔐 Login
+    </h1>
+
+    <p style="margin-bottom:25px;">
+        Login to your Forex Smart Hub account.
+    </p>
+
+    <form method="POST">
+
+        <label>Email</label>
+
+        <input
+            type="email"
+            name="email"
+            placeholder="you@example.com"
+            required>
+
+        <label>Password</label>
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Your password"
+            required>
+
+        <button
+            type="submit"
+            class="btn"
+            style="margin-top:20px;">
+
+            Login
+
+        </button>
+
+    </form>
+
+    <p style="margin-top:20px;">
+        Don't have an account?
+        <a href="{{ url_for('signup') }}">
+            Create Account
+        </a>
+    </p>
+
+</div>
+
+{% endblock %}

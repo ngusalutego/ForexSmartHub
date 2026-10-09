@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.users-box {
+    max-width: 850px;
+    margin: 30px auto;
+}
+
+.search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.search-form input {
+    flex: 1;
+    padding: 13px;
+    border-radius: 8px;
+    border: 1px solid #374151;
+}
+
+.search-form button {
+    padding: 13px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+}
+
+.user-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background: #111827;
+    padding: 15px;
+    margin-bottom: 12px;
+    border-radius: 12px;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-placeholder {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.user-name {
+    flex: 1;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.user-name a {
+    color: white;
+    text-decoration: none;
+}
+</style>
+
+<div class="users-box">
+
+    <h1>🔎 Find Users</h1>
+
+    <form
+        method="GET"
+        action="{{ url_for('users') }}"
+        class="search-form"
+    >
+
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search user by name..."
+        >
+
+        <button type="submit">
+            Search
+        </button>
+
+    </form>
+
+    {% if users %}
+
+        {% for user in users %}
+
+            <div class="user-card">
+
+                {% if user["profile_image"] %}
+
+                    <img
+                        class="avatar"
+                        src="{{ url_for('static', filename='uploads/' + user['profile_image']) }}"
+                    >
+
+                {% else %}
+
+                    <div class="avatar-placeholder">
+                        {{ user["name"][0]|upper }}
+                    </div>
+
+                {% endif %}
+
+                <div class="user-name">
+
+                    <a
+                        href="{{ url_for('profile', user_id=user['id']) }}"
+                    >
+                        {{ user["name"] }}
+                    </a>
+
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+    {% else %}
+
+        <p>No users found.</p>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

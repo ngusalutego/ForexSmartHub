@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.profile-box {
+    max-width: 900px;
+    margin: 30px auto;
+}
+
+.profile-header {
+    background: #111827;
+    border-radius: 18px;
+    padding: 30px;
+    text-align: center;
+}
+
+.profile-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #2563eb;
+}
+
+.profile-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 45px;
+    font-weight: bold;
+}
+
+.profile-name {
+    font-size: 28px;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.profile-bio {
+    color: #cbd5e1;
+    margin: 12px auto;
+    max-width: 600px;
+}
+
+.profile-stats {
+    display: flex;
+    justify-content: center;
+    gap: 35px;
+    margin: 20px 0;
+}
+
+.stat-number {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.profile-button {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    margin: 5px;
+}
+
+.subscribe-button {
+    background: #2563eb;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.edit-button {
+    background: #374151;
+    color: white;
+}
+
+.posts {
+    margin-top: 25px;
+}
+
+.post-card {
+    background: #111827;
+    padding: 18px;
+    margin-bottom: 18px;
+    border-radius: 12px;
+}
+
+.post-title {
+    font-size: 21px;
+    font-weight: bold;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.post-description {
+    color: #cbd5e1;
+    margin-bottom: 12px;
+}
+
+.post-category {
+    display: inline-block;
+    background: #2563eb;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 15px;
+}
+
+.video-frame {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border: none;
+    border-radius: 10px;
+    background: black;
+}
+
+.video-player {
+    width: 100%;
+    max-height: 500px;
+    border-radius: 10px;
+    background: black;
+}
+
+</style>
+
+<div class="profile-box">
+
+    <div class="profile-header">
+
+        {% if user["profile_image"] %}
+
+            <img
+                class="profile-image"
+                src="{{ url_for('static', filename='uploads/' + user['profile_image']) }}"
+            >
+
+        {% else %}
+
+            <div class="profile-placeholder">
+                {{ user["name"][0]|upper }}
+            </div>
+
+        {% endif %}
+
+        <div class="profile-name">
+            {{ user["name"] }}
+        </div>
+
+        <div class="profile-bio">
+            {{ user["bio"] or "No bio yet." }}
+        </div>
+
+        <div class="profile-stats">
+
+            <div>
+                <div class="stat-number">
+                    {{ subscribers }}
+                </div>
+                <div>Subscribers</div>
+            </div>
+
+            <div>
+                <div class="stat-number">
+                    {{ following }}
+                </div>
+                <div>Following</div>
+            </div>
+
+            <div>
+                <div class="stat-number">
+                    {{ posts|length }}
+                </div>
+                <div>Videos</div>
+            </div>
+
+        </div>
+
+        {% if current_user and current_user["id"] == user["id"] %}
+
+            <a
+                class="profile-button edit-button"
+                href="{{ url_for('edit_profile') }}"
+            >
+                ✏️ Edit Profile
+            </a>
+
+            <a
+                class="profile-button edit-button"
+                href="{{ url_for('settings') }}"
+            >
+                ⚙️ Settings
+            </a>
+
+        {% elif current_user %}
+
+            {% if is_subscribed %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('unsubscribe', user_id=user['id']) }}"
+                    style="display:inline;"
+                >
+
+                    <button
+                        class="profile-button subscribe-button"
+                        type="submit"
+                    >
+                        ✓ Subscribed
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('subscribe', user_id=user['id']) }}"
+                    style="display:inline;"
+                >
+
+                    <button
+                        class="profile-button subscribe-button"
+                        type="submit"
+                    >
+                        + Subscribe
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        {% else %}
+
+            <a
+                class="profile-button subscribe-button"
+                href="{{ url_for('login') }}"
+            >
+                Login to Subscribe
+            </a>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- USER VIDEOS -->
+
+    <div class="posts">
+
+        <h2>📹 {{ user["name"] }}'s Videos</h2>
+
+        {% if posts %}
+
+            {% for post in posts %}
+
+                <div class="post-card">
+
+                    <div class="post-title">
+                        {{ post["title"] }}
+                    </div>
+
+                    {% if post["category"] %}
+
+                        <div class="post-category">
+                            {{ post["category"] }}
+                        </div>
+
+                    {% endif %}
+
+                    {% if post["description"] %}
+
+                        <div class="post-description">
+                            {{ post["description"] }}
+                        </div>
+
+                    {% endif %}
+
+
+                    <!-- YOUTUBE VIDEO -->
+
+                    {% if post["youtube_url"] %}
+
+                        <iframe
+                            class="video-frame"
+                            src="{{ post['youtube_url'] }}"
+                            title="{{ post['title'] }}"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                            allowfullscreen>
+                        </iframe>
+
+
+                    <!-- LOCAL UPLOADED VIDEO -->
+
+                    {% elif post["filename"] %}
+
+                        <video
+                            class="video-player"
+                            controls
+                            preload="metadata"
+                        >
+
+                            <source
+                                src="{{ url_for('static', filename='uploads/' + post['filename']) }}"
+                                type="video/mp4"
+                            >
+
+                            Your browser does not support video playback.
+
+                        </video>
+
+                    {% endif %}
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p>
+                This user has not posted any videos yet.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+{% endblock %}

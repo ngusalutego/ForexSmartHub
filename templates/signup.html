@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block content %}
+
+<div style="max-width:520px;margin:auto;">
+
+    <h1 style="margin-bottom:10px;">
+        Create Account
+    </h1>
+
+    <p style="margin-bottom:25px;">
+        Join Forex Smart Hub and start learning.
+    </p>
+
+    <form method="POST">
+
+        <label>Full Name</label>
+
+        <input
+            type="text"
+            name="name"
+            placeholder="Your name"
+            required>
+
+        <label>Email</label>
+
+        <input
+            type="email"
+            name="email"
+            placeholder="you@example.com"
+            required>
+
+        <label>Password</label>
+
+        <input
+            type="password"
+            name="password"
+            placeholder="Minimum 6 characters"
+            minlength="6"
+            required>
+
+        <label>Confirm Password</label>
+
+        <input
+            type="password"
+            name="confirm_password"
+            placeholder="Repeat password"
+            minlength="6"
+            required>
+
+        <button
+            type="submit"
+            class="btn"
+            style="margin-top:20px;">
+
+            Create Account
+
+        </button>
+
+    </form>
+
+    <p style="margin-top:20px;">
+        Already have an account?
+        <a href="{{ url_for('login') }}">
+            Login
+        </a>
+    </p>
+
+</div>
+
+<script>
+
+document.querySelector("form").addEventListener(
+    "submit",
+    function() {
+
+        const password =
+            document.querySelector(
+                'input[name="password"]'
+            ).value;
+
+        const confirm =
+            document.querySelector(
+                'input[name="confirm_password"]'
+            ).value;
+
+        if (password !== confirm) {
+
+            alert("Passwords do not match.");
+
+        }
+
+    }
+);
+
+</script>
+
+{% endblock %}

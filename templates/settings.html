@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+.settings-box {
+    max-width: 600px;
+    margin: 30px auto;
+}
+
+.settings-card {
+    background: #111827;
+    padding: 25px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+
+.settings-card input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin: 8px 0 18px;
+    border-radius: 8px;
+    border: 1px solid #374151;
+}
+
+.settings-button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+}
+</style>
+
+<div class="settings-box">
+
+    <h1>⚙️ Settings</h1>
+
+    <div class="settings-card">
+
+        <h2>🔐 Change Password</h2>
+
+        <form
+            method="POST"
+            action="{{ url_for('change_password') }}"
+        >
+
+            <label>Current Password</label>
+
+            <input
+                type="password"
+                name="current_password"
+                required
+            >
+
+            <label>New Password</label>
+
+            <input
+                type="password"
+                name="new_password"
+                required
+            >
+
+            <label>Confirm New Password</label>
+
+            <input
+                type="password"
+                name="confirm_password"
+                required
+            >
+
+            <button
+                class="settings-button"
+                type="submit"
+            >
+                Change Password
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

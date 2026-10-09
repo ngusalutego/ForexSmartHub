@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Video{% endblock %}
+
+{% block content %}
+
+<h1 style="margin-bottom:10px;">
+    📤 Upload Forex Video
+</h1>
+
+<p style="margin-bottom:25px;">
+    Upload a video that you have the legal right or permission to share.
+</p>
+
+<form method="POST"
+      enctype="multipart/form-data"
+      id="uploadForm">
+
+    <label>
+        Video Title
+    </label>
+
+    <input
+        type="text"
+        name="title"
+        placeholder="Example: XAUUSD Strategy for Beginners"
+        required>
+
+    <label>
+        Category
+    </label>
+
+    <select name="category" required>
+
+        <option value="">
+            Select Category
+        </option>
+
+        {% for category in categories %}
+
+        <option value="{{ category }}">
+            {{ category }}
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+    <label>
+        Description
+    </label>
+
+    <textarea
+        name="description"
+        placeholder="Describe this video..."></textarea>
+
+    <label>
+        Select Video
+    </label>
+
+    <input
+        type="file"
+        name="video"
+        accept="video/*"
+        required>
+
+    <label style="font-weight:normal;">
+
+        <input
+            type="checkbox"
+            name="rights"
+            required
+            style="width:auto;margin-right:7px;">
+
+        I confirm that I have permission or the legal right
+        to upload this video.
+
+    </label>
+
+    <button
+        type="submit"
+        class="btn"
+        id="uploadButton"
+        style="margin-top:15px;">
+
+        Upload Video
+
+    </button>
+
+</form>
+
+<script>
+
+    document.getElementById("uploadForm")
+    .addEventListener("submit", function() {
+
+        document.getElementById("uploadButton").innerText =
+            "Uploading... Please wait";
+
+        document.getElementById("uploadButton").disabled = true;
+
+    });
+
+</script>
+
+{% endblock %}

@@ -45,7 +45,13 @@ form.addEventListener("submit", async (e) => {
       headers: {"Content-Type": "application/json", "X-CSRF-Token": "{{ csrf_token() }}"},
       body: JSON.stringify({filename: file.name, size: file.size})
     });
-    const info = await res.json();
+    const raw = await res.text();
+    let info;
+    try { info = JSON.parse(raw); }
+    catch (_) {
+      throw new Error("Server ilijibu HTTP " + res.status + (res.redirected ? " (imekurudisha kwenye " + new URL(res.url).pathname + ")" : "") +
+        " badala ya JSON. Refresh ukurasa, ingia tena, kisha jaribu. Kama bado, angalia Deploy Logs za Railway.");
+    }
     if (!res.ok) throw new Error(info.error || "Imeshindwa kuanza upload.");
     await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();

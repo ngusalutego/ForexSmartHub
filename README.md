@@ -2,6 +2,11 @@
 
 Flask + **Neon (PostgreSQL)** + **Cloudflare R2**.
 
+## Variables za Railway (zinazotumika)
+`DATABASE_URL`, `R2_ENDPOINT`, `R2_BUCKET_NAME`, `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY` (tayari unazo) +
+**`SECRET_KEY`** (neno refu lolote) na **`ADMIN_PASSWORD`** (zinahitajika). `R2_PUBLIC_URL` ni hiari.
+Bila `R2_PUBLIC_URL`, video zinachezwa kwa link za muda zilizosainiwa; ukiiweka zitakuwa za kudumu na haraka zaidi.
+
 ## 1. Neon
 1. Neon dashboard → Project → **Connection string** (chagua *Pooled* ikipatikana).
 2. Weka kwenye `DATABASE_URL` (lazima iwe na `?sslmode=require`).

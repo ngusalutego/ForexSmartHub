@@ -7,6 +7,7 @@ import os
 import re
 import secrets
 import time
+from urllib.parse import urlparse
 from functools import wraps
 from uuid import uuid4
 
@@ -51,10 +52,16 @@ ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "ngusalutego@gmail.com").strip().lower()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 
 R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID", "")
+R2_ENDPOINT = os.getenv("R2_ENDPOINT", "").strip()
+if not R2_ENDPOINT and R2_ACCOUNT_ID:
+    R2_ENDPOINT = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
+if R2_ENDPOINT:  # ondoa path ikiwa endpoint imewekwa na jina la bucket mwishoni
+    _p = urlparse(R2_ENDPOINT if "://" in R2_ENDPOINT else "https://" + R2_ENDPOINT)
+    R2_ENDPOINT = f"{_p.scheme}://{_p.netloc}"
 R2_ACCESS_KEY_ID = os.getenv("R2_ACCESS_KEY_ID", "")
 R2_SECRET_ACCESS_KEY = os.getenv("R2_SECRET_ACCESS_KEY", "")
-R2_BUCKET = os.getenv("R2_BUCKET", "")
-R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "").rstrip("/")
+R2_BUCKET = os.getenv("R2_BUCKET_NAME") or os.getenv("R2_BUCKET", "")
+R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "").rstrip("/")  # hiari
 MAX_VIDEO_MB = int(os.getenv("MAX_VIDEO_MB", "500"))
 
 VIDEO_EXT = {"mp4": "video/mp4", "webm": "video/webm", "mov": "video/quicktime",
@@ -195,7 +202,7 @@ _s3 = None
 
 
 def r2_configured():
-    return all([R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET, R2_PUBLIC_URL])
+    return all([R2_ENDPOINT, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET])
 
 
 def s3():
@@ -203,7 +210,7 @@ def s3():
     if _s3 is None:
         _s3 = boto3.client(
             "s3",
-            endpoint_url=f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com",
+            endpoint_url=R2_ENDPOINT,
             aws_access_key_id=R2_ACCESS_KEY_ID,
             aws_secret_access_key=R2_SECRET_ACCESS_KEY,
             region_name="auto",
@@ -213,7 +220,15 @@ def s3():
 
 
 def media_url(key):
-    return f"{R2_PUBLIC_URL}/{key}" if key else ""
+    """URL ya umma ikiwa R2_PUBLIC_URL ipo; vinginevyo link ya muda (masaa 6) iliyosainiwa."""
+    if not key:
+        return ""
+    if R2_PUBLIC_URL:
+        return f"{R2_PUBLIC_URL}/{key}"
+    if not r2_configured():
+        return ""
+    return s3().generate_presigned_url(
+        "get_object", Params={"Bucket": R2_BUCKET, "Key": key}, ExpiresIn=21600)
 
 
 def r2_delete(*keys):

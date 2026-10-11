@@ -307,6 +307,8 @@ def login_required(fn):
     @wraps(fn)
     def wrapper(*a, **kw):
         if not get_user():
+            if request.path.startswith("/api/"):
+                return jsonify(error="Session imeisha. Ingia (login) tena."), 401
             flash("Tafadhali ingia (login) kwanza.", "error")
             return redirect(url_for("login", next=request.path))
         return fn(*a, **kw)
@@ -361,6 +363,8 @@ def guard():
     if request.method == "POST":
         token = request.form.get("csrf_token") or request.headers.get("X-CSRF-Token")
         if not token or token != session.get("csrf"):
+            if request.path.startswith("/api/"):
+                return jsonify(error="Token ya usalama imekwisha. Refresh ukurasa ujaribu tena."), 400
             flash("Ombi limekataliwa (usalama). Jaribu tena.", "error")
             return redirect(request.referrer or url_for("home"))
 
@@ -401,7 +405,11 @@ def too_large(_):
 
 
 @app.errorhandler(500)
-def server_error(_):
+def server_error(error):
+    print("SERVER ERROR:", repr(getattr(error, "original_exception", error)))
+    if request.path.startswith("/api/"):
+        return jsonify(error="Hitilafu ya server: "
+                       + str(getattr(error, "original_exception", error))[:200]), 500
     return render_template("error.html", code=500, message="Kuna hitilafu ya server. Jaribu tena."), 500
 
 
@@ -555,7 +563,10 @@ def presign_upload():
         return jsonify(error="Storage (R2) haijawekwa na admin."), 503
     data = request.get_json(silent=True) or {}
     filename = secure_filename(str(data.get("filename", "")))
-    size = int(data.get("size") or 0)
+    try:
+        size = int(data.get("size") or 0)
+    except (TypeError, ValueError):
+        size = 0
     ext = ext_of(filename)
     if ext not in VIDEO_EXT:
         return jsonify(error="Aina ya faili hairuhusiwi. Tumia mp4, webm, mov, mkv au avi."), 400
@@ -563,10 +574,14 @@ def presign_upload():
         return jsonify(error=f"Video iwe chini ya {MAX_VIDEO_MB} MB."), 400
     key = f"videos/{get_user()['id']}/{uuid4().hex}.{ext}"
     content_type = VIDEO_EXT[ext]
-    url = s3().generate_presigned_url(
-        "put_object",
-        Params={"Bucket": R2_BUCKET, "Key": key, "ContentType": content_type},
-        ExpiresIn=3600)
+    try:
+        url = s3().generate_presigned_url(
+            "put_object",
+            Params={"Bucket": R2_BUCKET, "Key": key, "ContentType": content_type},
+            ExpiresIn=3600)
+    except Exception as error:
+        print("PRESIGN ERROR:", repr(error))
+        return jsonify(error="Imeshindwa kuunganisha R2: " + str(error)[:200]), 500
     return jsonify(url=url, key=key, content_type=content_type)
 
 

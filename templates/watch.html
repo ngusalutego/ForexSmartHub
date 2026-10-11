@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "_macros.html" import video_card, avatar, csrf with context %}
+{% block title %}{{ video['title'] }}{% endblock %}
+{% block content %}
+<div class="watch-grid">
+  <div>
+    <div class="video-box" style="border-radius:14px;overflow:hidden;">
+      {% if video['video_type'] == 'youtube' %}
+        <iframe src="{{ video['video_url'] }}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+      {% else %}
+        <video controls preload="metadata" playsinline src="{{ media(video['filename']) }}"></video>
+      {% endif %}
+    </div>
+    <h1 style="font-size:24px;margin:16px 0 6px;">{{ video['title'] }}</h1>
+    <div class="meta">
+      <span class="category">{{ video['category'] }}</span>
+      <span>👁 {{ video['views'] }} views</span><span>{{ video['created_at']|dt }}</span>
+      {% if video['user_id'] %}<a href="{{ url_for('profile', user_id=video['user_id']) }}">{{ video['username'] }}</a>{% endif %}
+    </div>
+
+    <div class="row" id="actions">
+      {% if current_user %}
+      <form class="inline-form" method="POST" action="{{ url_for('like', video_id=video['id']) }}">
+        {{ csrf() }}<button class="btn {{ 'btn-dark' if liked }}" type="submit">{{ '👍 Liked' if liked else '👍 Like' }} · {{ video['like_count'] }}</button>
+      </form>
+      {% else %}<a class="btn" href="{{ url_for('login', next=request.path) }}">👍 Login ku-like · {{ video['like_count'] }}</a>{% endif %}
+      {% if can_manage %}
+        <a class="btn btn-gray" href="{{ url_for('edit_video', video_id=video['id']) }}">Edit</a>
+        <form class="inline-form" method="POST" action="{{ url_for('delete_video', video_id=video['id']) }}">
+          {{ csrf() }}<input type="hidden" name="next" value="{{ url_for('videos') }}">
+          <button class="btn btn-danger" onclick="return confirm('Futa video hii?');">Delete</button>
+        </form>
+      {% endif %}
+    </div>
+
+    {% if video['description'] %}<div class="box" style="margin-top:16px;white-space:pre-line;">{{ video['description'] }}</div>{% endif %}
+
+    <div class="box" id="comments" style="margin-top:16px;">
+      <h2 style="margin-bottom:12px;">💬 Maoni ({{ comments|length }})</h2>
+      {% if current_user %}
+      <form method="POST" action="{{ url_for('add_comment', video_id=video['id']) }}" class="plain-form">
+        {{ csrf() }}
+        <textarea name="body" maxlength="1000" required placeholder="Andika maoni..." style="min-height:80px;"></textarea>
+        <button class="btn" style="margin-top:8px;" type="submit">Tuma</button>
+      </form>
+      {% else %}<p><a href="{{ url_for('login', next=request.path) }}">Login</a> ili kutoa maoni.</p>{% endif %}
+      {% for c in comments %}
+      <div style="display:flex;gap:12px;margin-top:18px;">
+        {{ avatar(c) }}
+        <div style="flex:1;min-width:0;">
+          <strong><a href="{{ url_for('profile', user_id=c['user_id']) }}" style="color:inherit;text-decoration:none;">{{ c['name'] }}</a></strong>
+          <small style="color:#667085;"> · {{ c['created_at']|dt }}</small>
+          <p style="white-space:pre-line;word-break:break-word;">{{ c['body'] }}</p>
+          {% if current_user and (current_user['is_admin'] or current_user['id'] == c['user_id']) %}
+          <form class="inline-form" method="POST" action="{{ url_for('delete_comment', comment_id=c['id']) }}">
+            {{ csrf() }}<button style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:13px;" onclick="return confirm('Futa maoni?');">Futa</button>
+          </form>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <aside>
+    <h3 style="margin-bottom:12px;">Video zinazofanana</h3>
+    <div style="display:grid;gap:16px;">
+      {% for v in related %}{{ video_card(v, url_for('videos')) }}{% else %}<p>Hakuna video nyingine kwenye category hii.</p>{% endfor %}
+    </div>
+  </aside>
+</div>
+{% endblock %}

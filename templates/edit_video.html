@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_macros.html" import csrf with context %}
+{% block title %}Edit Video{% endblock %}
+{% block content %}
+<h1 style="margin-bottom:20px;">✏️ Edit Video</h1>
+<form method="POST">
+  {{ csrf() }}
+  <label>Title</label>
+  <input type="text" name="title" maxlength="150" value="{{ video['title'] }}" required>
+  <label>Category</label>
+  <select name="category" required>
+    {% for c in categories %}<option value="{{ c }}" {% if c == video['category'] %}selected{% endif %}>{{ c }}</option>{% endfor %}
+  </select>
+  <label>Description</label>
+  <textarea name="description">{{ video['description'] }}</textarea>
+  <div class="row">
+    <button class="btn" type="submit">Save</button>
+    <a class="btn btn-gray" href="{{ url_for('watch', video_id=video['id']) }}">Cancel</a>
+  </div>
+</form>
+{% endblock %}

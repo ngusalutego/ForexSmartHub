@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Error {{ code }}{% endblock %}
+{% block content %}
+<div class="box center-box" style="text-align:center;">
+  <h1 style="font-size:56px;">{{ code }}</h1>
+  <p style="margin:10px 0 20px;">{{ message }}</p>
+  <a class="btn" href="{{ url_for('home') }}">Rudi Home</a>
+</div>
+{% endblock %}

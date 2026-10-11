@@ -226,7 +226,8 @@
             transition: .2s ease;
         }
 
-        .profile-menu:hover .profile-dropdown {
+        .profile-menu:hover .profile-dropdown,
+        .profile-menu.open .profile-dropdown {
             opacity: 1;
             visibility: visible;
             transform: translateY(0);
@@ -624,6 +625,33 @@
             margin-bottom: 3px;
         }
 
+
+        .plain-form { padding:0 !important; margin:0; background:none !important; box-shadow:none !important; border-radius:0 !important; }
+        button.dropdown-link { background:none; border:none; cursor:pointer; text-align:left; font-family:inherit; }
+        .inline-form { display:inline; padding:0 !important; background:none !important; box-shadow:none !important; margin:0; }
+        .btn-sm { padding:7px 12px; font-size:13px; }
+        .btn-gray { background:#475467; }
+        a { color:#16a34a; }
+        .banner { padding:14px 16px; border-radius:10px; margin-bottom:18px; display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+        .banner.warn { background:#fff7ed; color:#9a3412; border:1px solid #fed7aa; }
+        .thumb { position:relative; display:block; aspect-ratio:16/9; background:#000; overflow:hidden; }
+        .thumb img, .thumb video { width:100%; height:100%; object-fit:cover; display:block; pointer-events:none; }
+        .thumb .play { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:42px; text-shadow:0 2px 12px rgba(0,0,0,.6); }
+        .meta { color:#667085; font-size:13px; display:flex; gap:12px; flex-wrap:wrap; margin-top:6px; }
+        .card h3 a { color:inherit; text-decoration:none; }
+        .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+        .pager { display:flex; gap:10px; justify-content:center; align-items:center; margin:28px 0; }
+        .box { background:white; border-radius:15px; padding:25px; box-shadow:0 4px 15px rgba(0,0,0,.06); margin-bottom:20px; }
+        .center-box { max-width:620px; margin:20px auto; }
+        .avatar { width:44px; height:44px; border-radius:50%; object-fit:cover; flex:none; }
+        .avatar-ph { width:44px; height:44px; border-radius:50%; background:#22c55e; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; flex:none; }
+        .avatar.lg, .avatar-ph.lg { width:110px; height:110px; font-size:42px; }
+        .progress { height:10px; background:#eaecf0; border-radius:6px; overflow:hidden; margin-top:12px; display:none; }
+        .progress > div { height:100%; width:0; background:#22c55e; transition:width .2s; }
+        .watch-grid { display:grid; grid-template-columns:minmax(0,2fr) minmax(0,1fr); gap:24px; }
+        @media(max-width:900px){ .watch-grid { grid-template-columns:1fr; } }
+        .bottom-nav a.active { color:#22c55e; }
+
         /* =========================================
            FOOTER
         ========================================= */
@@ -815,7 +843,7 @@
 
                     <img
                         class="profile-avatar"
-                        src="{{ url_for('static', filename='uploads/' + current_user['profile_image']) }}"
+                        src="{{ media(current_user['profile_image']) }}"
                         alt="Profile"
                     >
 
@@ -864,6 +892,11 @@
                 </a>
 
 
+                <a class="dropdown-link" href="{{ url_for('following') }}">
+                    <span class="dropdown-icon">⭐</span>
+                    Following
+                </a>
+
                 <a
                     class="dropdown-link"
                     href="{{ url_for('users') }}"
@@ -898,13 +931,12 @@
                 <div class="dropdown-divider"></div>
 
 
-                <a
-                    class="dropdown-link dropdown-logout"
-                    href="{{ url_for('logout') }}"
-                >
-                    <span class="dropdown-icon">↪</span>
-                    Logout
-                </a>
+                <form method="POST" action="{{ url_for('logout') }}" class="plain-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="dropdown-link dropdown-logout">
+                        <span class="dropdown-icon">↪</span> Logout
+                    </button>
+                </form>
 
             </div>
 
@@ -956,6 +988,16 @@
     {% endwith %}
 
 
+    {% if current_user and current_user['warning'] %}
+        <div class="banner warn">
+            <span>⚠️ <strong>Onyo kutoka kwa Guardian:</strong> {{ current_user['warning'] }}</span>
+            <form method="POST" action="{{ url_for('dismiss_warning') }}" class="plain-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-warning btn-sm" type="submit">Nimeelewa</button>
+            </form>
+        </div>
+    {% endif %}
+
     {% block content %}
 
     {% endblock %}
@@ -969,7 +1011,7 @@
 
 <nav class="bottom-nav">
 
-    <a href="{{ url_for('home') }}">
+    <a href="{{ url_for('home') }}" class="{{ 'active' if request.endpoint == 'home' }}">
 
         <span class="bottom-icon">
             ⌂
@@ -980,7 +1022,7 @@
     </a>
 
 
-    <a href="{{ url_for('videos') }}">
+    <a href="{{ url_for('videos') }}" class="{{ 'active' if request.endpoint in ('videos','watch') }}">
 
         <span class="bottom-icon">
             ▶
@@ -1070,6 +1112,19 @@
 <!-- =========================================
      ALERT SCRIPT
 ========================================= -->
+
+<script>
+    (function () {
+        var menu = document.querySelector('.profile-menu');
+        if (!menu) return;
+        menu.querySelector('.profile-trigger').addEventListener('click', function (e) {
+            e.stopPropagation(); menu.classList.toggle('open');
+        });
+        document.addEventListener('click', function (e) {
+            if (!menu.contains(e.target)) menu.classList.remove('open');
+        });
+    })();
+</script>
 
 <script>
 

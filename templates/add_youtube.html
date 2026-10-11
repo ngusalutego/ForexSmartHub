@@ -1,91 +1,22 @@
 {% extends "base.html" %}
-
+{% from "_macros.html" import csrf with context %}
 {% block title %}Add YouTube Video{% endblock %}
-
 {% block content %}
-
-<h1 style="margin-bottom:10px;">
-    ▶️ Add YouTube Forex Video
-</h1>
-
-<p style="margin-bottom:25px;">
-    Add a permitted YouTube educational video to Forex Smart Hub.
-</p>
-
-<form method="POST" id="youtubeForm">
-
-    <label>
-        Video Title
-    </label>
-
-    <input
-        type="text"
-        name="title"
-        placeholder="Example: Madam Forex Strategy"
-        required>
-
-    <label>
-        Category
-    </label>
-
-    <select name="category" required>
-
-        <option value="">
-            Select Category
-        </option>
-
-        {% for category in categories %}
-
-        <option value="{{ category }}">
-            {{ category }}
-        </option>
-
-        {% endfor %}
-
-    </select>
-
-    <label>
-        YouTube URL
-    </label>
-
-    <input
-        type="url"
-        name="youtube_url"
-        placeholder="https://www.youtube.com/watch?v=..."
-        required>
-
-    <label>
-        Description
-    </label>
-
-    <textarea
-        name="description"
-        placeholder="Video description..."></textarea>
-
-    <button
-        type="submit"
-        class="btn"
-        id="youtubeButton"
-        style="margin-top:15px;">
-
-        Add YouTube Video
-
-    </button>
-
+<h1 style="margin-bottom:10px;">▶️ Add YouTube Forex Video</h1>
+<p style="margin-bottom:20px;">Ongeza video ya elimu ya YouTube unayoruhusiwa kuishiriki.</p>
+<form method="POST">
+  {{ csrf() }}
+  <label>Video Title</label>
+  <input type="text" name="title" maxlength="150" required>
+  <label>Category</label>
+  <select name="category" required>
+    <option value="">Select Category</option>
+    {% for c in categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+  </select>
+  <label>YouTube URL</label>
+  <input type="url" name="youtube_url" placeholder="https://www.youtube.com/watch?v=..." required>
+  <label>Description</label>
+  <textarea name="description"></textarea>
+  <button type="submit" class="btn" style="margin-top:15px;">Add YouTube Video</button>
 </form>
-
-<script>
-
-    document.getElementById("youtubeForm")
-    .addEventListener("submit", function() {
-
-        document.getElementById("youtubeButton").innerText =
-            "Adding Video...";
-
-        document.getElementById("youtubeButton").disabled = true;
-
-    });
-
-</script>
-
 {% endblock %}

@@ -1,106 +1,73 @@
 {% extends "base.html" %}
-
+{% from "_macros.html" import csrf with context %}
 {% block title %}Upload Video{% endblock %}
-
 {% block content %}
-
-<h1 style="margin-bottom:10px;">
-    📤 Upload Forex Video
-</h1>
-
-<p style="margin-bottom:25px;">
-    Upload a video that you have the legal right or permission to share.
-</p>
-
-<form method="POST"
-      enctype="multipart/form-data"
-      id="uploadForm">
-
-    <label>
-        Video Title
-    </label>
-
-    <input
-        type="text"
-        name="title"
-        placeholder="Example: XAUUSD Strategy for Beginners"
-        required>
-
-    <label>
-        Category
-    </label>
-
-    <select name="category" required>
-
-        <option value="">
-            Select Category
-        </option>
-
-        {% for category in categories %}
-
-        <option value="{{ category }}">
-            {{ category }}
-        </option>
-
-        {% endfor %}
-
-    </select>
-
-    <label>
-        Description
-    </label>
-
-    <textarea
-        name="description"
-        placeholder="Describe this video..."></textarea>
-
-    <label>
-        Select Video
-    </label>
-
-    <input
-        type="file"
-        name="video"
-        accept="video/*"
-        required>
-
-    <label style="font-weight:normal;">
-
-        <input
-            type="checkbox"
-            name="rights"
-            required
-            style="width:auto;margin-right:7px;">
-
-        I confirm that I have permission or the legal right
-        to upload this video.
-
-    </label>
-
-    <button
-        type="submit"
-        class="btn"
-        id="uploadButton"
-        style="margin-top:15px;">
-
-        Upload Video
-
-    </button>
-
+<h1 style="margin-bottom:10px;">📤 Upload Forex Video</h1>
+<p style="margin-bottom:20px;">Pakia video ambayo una haki au ruhusa ya kuishiriki (hadi {{ max_mb }} MB).</p>
+{% if not r2_ready %}<div class="alert error">Storage (Cloudflare R2) haijawekwa bado. Weka R2_* kwenye environment variables.</div>{% endif %}
+<form method="POST" id="uploadForm">
+  {{ csrf() }}
+  <input type="hidden" name="video_key" id="videoKey">
+  <label>Video Title</label>
+  <input type="text" name="title" maxlength="150" placeholder="Mfano: XAUUSD Strategy for Beginners" required>
+  <label>Category</label>
+  <select name="category" required>
+    <option value="">Select Category</option>
+    {% for c in categories %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+  </select>
+  <label>Description</label>
+  <textarea name="description" placeholder="Eleza video hii..."></textarea>
+  <label>Select Video</label>
+  <input type="file" id="videoFile" accept="video/*" required>
+  <div class="progress" id="progress"><div id="bar"></div></div>
+  <p id="status" style="margin-top:8px;font-size:14px;color:#667085;"></p>
+  <label style="font-weight:normal;">
+    <input type="checkbox" name="rights" required style="width:auto;margin-right:7px;">
+    Nathibitisha kuwa nina ruhusa au haki ya kisheria ya kupakia video hii.
+  </label>
+  <button type="submit" class="btn" id="uploadButton" style="margin-top:15px;" {% if not r2_ready %}disabled{% endif %}>Upload Video</button>
 </form>
-
 <script>
+const form = document.getElementById("uploadForm"), btn = document.getElementById("uploadButton");
+const bar = document.getElementById("bar"), progress = document.getElementById("progress"), statusEl = document.getElementById("status");
+let uploading = false;
 
-    document.getElementById("uploadForm")
-    .addEventListener("submit", function() {
-
-        document.getElementById("uploadButton").innerText =
-            "Uploading... Please wait";
-
-        document.getElementById("uploadButton").disabled = true;
-
+form.addEventListener("submit", async (e) => {
+  if (document.getElementById("videoKey").value) return;      // tayari imepakiwa -> tuma fomu
+  e.preventDefault();
+  if (uploading) return;
+  const file = document.getElementById("videoFile").files[0];
+  if (!file || !form.reportValidity()) return;
+  uploading = true; btn.disabled = true; btn.innerText = "Inapakia..."; progress.style.display = "block";
+  try {
+    const res = await fetch("{{ url_for('presign_upload') }}", {
+      method: "POST",
+      headers: {"Content-Type": "application/json", "X-CSRF-Token": "{{ csrf_token() }}"},
+      body: JSON.stringify({filename: file.name, size: file.size})
     });
-
+    const info = await res.json();
+    if (!res.ok) throw new Error(info.error || "Imeshindwa kuanza upload.");
+    await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("PUT", info.url);
+      xhr.setRequestHeader("Content-Type", info.content_type);
+      xhr.upload.onprogress = (ev) => {
+        if (ev.lengthComputable) {
+          const p = Math.round(ev.loaded / ev.total * 100);
+          bar.style.width = p + "%"; statusEl.innerText = p + "% imepakiwa";
+        }
+      };
+      xhr.onload = () => (xhr.status >= 200 && xhr.status < 300) ? resolve() : reject(new Error("R2 ilikataa upload (" + xhr.status + "). Angalia CORS ya bucket."));
+      xhr.onerror = () => reject(new Error("Mtandao umekatika au CORS ya R2 haijawekwa."));
+      xhr.send(file);
+    });
+    document.getElementById("videoKey").value = info.key;
+    statusEl.innerText = "Imekamilika, inahifadhi...";
+    form.submit();
+  } catch (err) {
+    statusEl.innerText = "❌ " + err.message;
+    btn.disabled = false; btn.innerText = "Upload Video"; uploading = false;
+  }
+});
 </script>
-
 {% endblock %}

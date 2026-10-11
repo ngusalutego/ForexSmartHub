@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% from "_macros.html" import video_card with context %}
+{% block title %}Following{% endblock %}
+{% block content %}
+<h1 style="margin-bottom:20px;">⭐ Video za unaowafuata</h1>
+<div class="grid">
+  {% for video in videos %}{{ video_card(video, url_for('following')) }}
+  {% else %}
+  <div class="card"><div class="card-body"><h3>Bado hakuna video.</h3>
+    <p>Subscribe kwa watumiaji ili uone video zao hapa.</p>
+    <a class="btn" href="{{ url_for('users') }}" style="margin-top:12px;">Tafuta watumiaji</a></div></div>
+  {% endfor %}
+</div>
+{% endblock %}

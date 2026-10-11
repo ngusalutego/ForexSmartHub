@@ -7,7 +7,6 @@ import os
 import re
 import secrets
 import time
-from urllib.parse import urlparse
 from functools import wraps
 from uuid import uuid4
 
@@ -51,17 +50,32 @@ DATABASE_URL = os.getenv("DATABASE_URL", "")
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "ngusalutego@gmail.com").strip().lower()
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")
 
-R2_ACCOUNT_ID = os.getenv("R2_ACCOUNT_ID", "")
-R2_ENDPOINT = os.getenv("R2_ENDPOINT", "").strip()
+def _env(*names):
+    """Soma variable ya kwanza iliyopo; ondoa nafasi na alama za nukuu zisizotakiwa."""
+    for name in names:
+        value = os.getenv(name)
+        if value and value.strip():
+            return value.strip().strip("\"'").strip()
+    return ""
+
+
+R2_ACCOUNT_ID = _env("R2_ACCOUNT_ID")
+R2_ENDPOINT = _env("R2_ENDPOINT")
+if R2_ENDPOINT:
+    _m = re.search(r"https?://[A-Za-z0-9.-]+", R2_ENDPOINT)      # toa scheme://host tu (bila path)
+    if _m:
+        R2_ENDPOINT = _m.group(0)
+    elif re.fullmatch(r"[A-Za-z0-9.-]+", R2_ENDPOINT):           # host bila https://
+        R2_ENDPOINT = "https://" + R2_ENDPOINT
+    else:
+        print("WARNING: R2_ENDPOINT si sahihi:", repr(R2_ENDPOINT[:8]) + "...")
+        R2_ENDPOINT = ""
 if not R2_ENDPOINT and R2_ACCOUNT_ID:
     R2_ENDPOINT = f"https://{R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
-if R2_ENDPOINT:  # ondoa path ikiwa endpoint imewekwa na jina la bucket mwishoni
-    _p = urlparse(R2_ENDPOINT if "://" in R2_ENDPOINT else "https://" + R2_ENDPOINT)
-    R2_ENDPOINT = f"{_p.scheme}://{_p.netloc}"
-R2_ACCESS_KEY_ID = os.getenv("R2_ACCESS_KEY_ID", "")
-R2_SECRET_ACCESS_KEY = os.getenv("R2_SECRET_ACCESS_KEY", "")
-R2_BUCKET = os.getenv("R2_BUCKET_NAME") or os.getenv("R2_BUCKET", "")
-R2_PUBLIC_URL = os.getenv("R2_PUBLIC_URL", "").rstrip("/")  # hiari
+R2_ACCESS_KEY_ID = _env("R2_ACCESS_KEY_ID")
+R2_SECRET_ACCESS_KEY = _env("R2_SECRET_ACCESS_KEY")
+R2_BUCKET = _env("R2_BUCKET_NAME", "R2_BUCKET")
+R2_PUBLIC_URL = _env("R2_PUBLIC_URL").rstrip("/")  # hiari
 MAX_VIDEO_MB = int(os.getenv("MAX_VIDEO_MB", "500"))
 
 VIDEO_EXT = {"mp4": "video/mp4", "webm": "video/webm", "mov": "video/quicktime",
